@@ -1,0 +1,105 @@
+-- INSERT VALUES 
+-- branches
+insert into branches (branch_name, city) values
+('sunrise academy', 'pune'),
+('elite school', 'mumbai'),
+('bright scholars', 'nagpur');
+
+-- classes
+insert into classes (branch_id, class_name) values
+(1, 'science'),
+(1, 'commerce'),
+(1, 'arts'),
+(2, 'science'),
+(2, 'commerce'),
+(2, 'arts'),
+(3, 'science'),
+(3, 'commerce'),
+(3, 'arts');
+
+-- students
+insert into students (name, age, phone, email, address, class_id) values
+('aarav sharma', 18, '9123456789', 'aarav.sharma@example.com', '1234 baner road, pune', 1),
+('riya patil', 17, '9876543210', 'riya.patil@example.com', '5678 kothrud, pune', 2),
+('ishaan joshi', 18, '9988776655', 'ishaan.joshi@example.com', '1345 mg road, mumbai', 4),
+('neha kapoor', 17, '8877665544', 'neha.kapoor@example.com', '4556 versova, mumbai', 5),
+('saanvi agarwal', 18, '9988774466', 'saanvi.agarwal@example.com', '7890 nanded, nagpur', 7),
+('kunal mehta', 17, '9867532154', 'kunal.mehta@example.com', '1234 sadar bazar, nagpur', 8),
+('vishal singh', 18, '9999988777', 'vishal.singh@example.com', '1027 f.c. road, pune', 3),
+('ananya deshmukh', 17, '9167384928', 'ananya.deshmukh@example.com', '4129 kothrud, pune', 6),
+('rohit patel', 18, '9827654321', 'rohit.patel@example.com', '7891 colaba, mumbai', 4),
+('priya yadav', 17, '9745632108', 'priya.yadav@example.com', '1602 goregaon, mumbai', 5);
+
+
+-- fees
+insert into fees (total_amount, amount_paid, payment_date, student_id) values
+(50000.00, 50000.00, '2025-06-10', 1),
+(50000.00, 10000.00, '2025-06-10', 2),
+(50000.00, 50000.00, '2025-06-10', 3),
+(50000.00, 50000.00, '2025-06-10', 4),
+(50000.00, 20000.00, '2025-06-10', 5),
+(50000.00, 50000.00, '2025-06-10', 6),
+(50000.00, 30000.00, '2025-06-10', 7),
+(50000.00, 50000.00, '2025-06-10', 8),
+(50000.00, 20000.00, '2025-06-10', 9),
+(50000.00, 50000.00, '2025-06-10', 10);
+
+
+-- departments
+insert into departments (department_name) values
+('admin'),
+('maintenance'),
+('accounts'),
+('finance'),
+('science'),
+('commerce'),
+('arts');
+
+
+-- teachers
+insert into teachers (name, qualifiction, designation, phone, email, address, department_id) values
+('dr. amit deshmukh', 'msc physics', 'teacher',  '9012345678', 'amit.deshmukh@example.com', 'pune road, pune', 5),
+('mrs. priya singh', 'msc chemistry', 'teacher',  '9222334455', 'priya.singh@example.com', 'koregaon park, pune', 5),
+('mr. rahul gupta', 'mcom', 'teacher',  '9322445566', 'rahul.gupta@example.com', 'colaba, mumbai', 6),
+('mrs. sunita reddy', 'mcom', 'teacher',  '9455667788', 'sunita.reddy@example.com', 'andheri, mumbai', 6),
+('mr. vikram joshi', 'ma history', 'teacher',  '9666778899', 'vikram.joshi@example.com', 'nagpur road, nagpur', 7),
+('mrs. anjali bhagat', 'ma english', 'teacher',  '9933445566', 'anjali.bhagat@example.com', 'nagpur, nagpur', 7),
+('dr. karan shah', 'msc biology', 'teacher',  '9812334455', 'karan.shah@example.com', 'malad, mumbai', 5),
+('mr. manish gupta', 'mcom', 'teacher', '9933445566', 'manish.gupta@example.com', 'viman nagar, pune', 6),
+('mrs. rekha desai', 'ma sociology', 'teacher',  '9876543210', 'rekha.desai@example.com', 'pune camp, pune', 7),
+('mr. ajay mehta', 'msc mathematics', 'teacher',  '9753456789', 'ajay.mehta@example.com', 'andheri, mumbai', 5);
+
+
+-- teacher_class
+insert into teacher_class (teacher_id, class_id) values
+(1, 1),
+(2, 1),
+(3, 2),
+(4, 2),
+(5, 3),
+(6, 3),
+(7, 4),
+(8, 5),
+(9, 6),
+(10, 8);
+
+
+-- employees
+insert into employee (name, qualification, designation, phone, email, address, department_id) values
+('anjali desai', 'bcom', 'accountant', '9198765432', 'anjali.desai@example.com', 'pune camp, pune', 3),
+('nikhil patil', 'bsc', 'clerk', '9322334455', 'nikhil.patil@example.com', 'dadar, mumbai', 1),
+('ravindra kumar', 'ma english', 'administrator', '9666778899', 'ravindra.kumar@example.com', 'nagpur road, nagpur', 1),
+('maya joshi', 'bcom', 'accountant', '9812773344', 'maya.joshi@example.com', 'pune cantonment, pune', 3),
+('jeevan patil', 'bsc it', 'clerk', '9928776655', 'jeevan.patil@example.com', 'borivali, mumbai', 1),
+('arvind sharma', 'mcom', 'accountant', '9122333445', 'arvind.sharma@example.com', 'nagpur square, nagpur', 4);
+
+
+-- SEE all tables 
+SELECT * FROM branches;
+SELECT * FROM classes;
+SELECT * FROM students;
+SELECT * FROM fees;
+SELECT * FROM departments;
+SELECT * FROM teachers;
+SELECT * FROM teacher_class;
+SELECT * FROM employee;
