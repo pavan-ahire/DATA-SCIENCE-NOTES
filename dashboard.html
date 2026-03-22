@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Data Science Interview Q&A Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0a0a0f;
+  --surface: #12121a;
+  --surface2: #1a1a26;
+  --border: rgba(255,255,255,0.07);
+  --border2: rgba(255,255,255,0.13);
+  --text: #f0eff8;
+  --muted: #8884a0;
+  --accent: #7c6cfa;
+  --accent2: #a78bfa;
+  --green: #34d399;
+  --amber: #fbbf24;
+  --rose: #fb7185;
+  --teal: #22d3ee;
+  --tag-stat-bg: rgba(251,191,36,0.12);
+  --tag-stat: #fbbf24;
+  --tag-ml-bg: rgba(124,108,250,0.12);
+  --tag-ml: #a78bfa;
+  --tag-sql-bg: rgba(52,211,153,0.12);
+  --tag-sql: #34d399;
+  --tag-dl-bg: rgba(251,113,133,0.12);
+  --tag-dl: #fb7185;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min-height:100vh;overflow-x:hidden}
+
+/* BACKGROUND */
+body::before{content:'';position:fixed;top:-40%;left:-20%;width:60%;height:80%;background:radial-gradient(ellipse,rgba(124,108,250,0.08) 0%,transparent 70%);pointer-events:none;z-index:0}
+body::after{content:'';position:fixed;bottom:-30%;right:-10%;width:50%;height:60%;background:radial-gradient(ellipse,rgba(34,211,238,0.05) 0%,transparent 70%);pointer-events:none;z-index:0}
+
+.app{position:relative;z-index:1;max-width:1400px;margin:0 auto;padding:0 24px 60px}
+
+/* HEADER */
+header{padding:40px 0 32px;display:flex;align-items:flex-end;justify-content:space-between;flex-wrap:wrap;gap:16px;border-bottom:1px solid var(--border)}
+.header-left{}
+.eyebrow{font-size:11px;letter-spacing:0.2em;text-transform:uppercase;color:var(--accent2);font-weight:500;margin-bottom:8px}
+h1{font-family:'Syne',sans-serif;font-size:clamp(28px,5vw,48px);font-weight:800;line-height:1.05;background:linear-gradient(135deg,#fff 30%,var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+h1 span{display:block;font-weight:400;font-size:0.6em;-webkit-text-fill-color:var(--muted);color:var(--muted)}
+.header-stats{display:flex;gap:20px;flex-wrap:wrap}
+.stat-pill{background:var(--surface);border:1px solid var(--border2);border-radius:12px;padding:10px 18px;text-align:center}
+.stat-pill .num{font-family:'Syne',sans-serif;font-size:22px;font-weight:700;color:var(--accent2)}
+.stat-pill .lbl{font-size:11px;color:var(--muted);margin-top:2px}
+
+/* CONTROLS */
+.controls{padding:24px 0 0;display:flex;flex-direction:column;gap:16px}
+.search-wrap{position:relative}
+.search-wrap svg{position:absolute;left:16px;top:50%;transform:translateY(-50%);opacity:0.4}
+#search{width:100%;padding:13px 16px 13px 46px;background:var(--surface);border:1px solid var(--border2);border-radius:12px;font-size:15px;color:var(--text);font-family:'DM Sans',sans-serif;outline:none;transition:border .2s}
+#search:focus{border-color:var(--accent)}
+#search::placeholder{color:var(--muted)}
+
+.filter-row{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.filter-label{font-size:12px;color:var(--muted);letter-spacing:0.08em;text-transform:uppercase;margin-right:4px}
+.chip{padding:7px 16px;border-radius:100px;border:1px solid var(--border2);font-size:13px;font-family:'DM Sans',sans-serif;cursor:pointer;background:transparent;color:var(--muted);transition:all .18s;white-space:nowrap}
+.chip:hover{border-color:var(--accent);color:var(--accent2)}
+.chip.active{background:rgba(124,108,250,0.15);border-color:var(--accent);color:var(--accent2);font-weight:500}
+
+.tag-filter{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.tag-btn{padding:5px 13px;border-radius:100px;border:1px solid transparent;font-size:12px;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all .15s}
+.tag-btn.stat{background:var(--tag-stat-bg);color:var(--tag-stat);border-color:rgba(251,191,36,0.25)}
+.tag-btn.ml{background:var(--tag-ml-bg);color:var(--tag-ml);border-color:rgba(124,108,250,0.25)}
+.tag-btn.sql{background:var(--tag-sql-bg);color:var(--tag-sql);border-color:rgba(52,211,153,0.25)}
+.tag-btn.dl{background:var(--tag-dl-bg);color:var(--tag-dl);border-color:rgba(251,113,133,0.25)}
+.tag-btn.inactive{opacity:0.3}
+
+/* MAIN LAYOUT */
+.layout{display:grid;grid-template-columns:300px 1fr;gap:24px;margin-top:24px}
+@media(max-width:768px){.layout{grid-template-columns:1fr}}
+
+/* SIDEBAR */
+.sidebar{position:sticky;top:24px;height:calc(100vh - 120px);overflow-y:auto;scrollbar-width:thin;scrollbar-color:var(--border2) transparent}
+.sidebar::-webkit-scrollbar{width:4px}
+.sidebar::-webkit-scrollbar-track{background:transparent}
+.sidebar::-webkit-scrollbar-thumb{background:var(--border2);border-radius:4px}
+
+.company-group{margin-bottom:4px}
+.company-header{display:flex;align-items:center;justify-content:space-between;padding:10px 14px;border-radius:10px;cursor:pointer;transition:background .15s}
+.company-header:hover{background:var(--surface)}
+.company-name{font-family:'Syne',sans-serif;font-size:13px;font-weight:600;color:var(--text)}
+.company-count{font-size:11px;color:var(--muted);background:var(--surface2);padding:2px 8px;border-radius:20px}
+.company-qs{display:none;padding-left:8px}
+.company-qs.open{display:block}
+.q-item{padding:8px 12px;border-radius:8px;cursor:pointer;font-size:12px;color:var(--muted);line-height:1.4;border-left:2px solid transparent;margin-bottom:2px;transition:all .15s}
+.q-item:hover{background:var(--surface);color:var(--text);border-left-color:var(--border2)}
+.q-item.active{background:rgba(124,108,250,0.1);color:var(--accent2);border-left-color:var(--accent)}
+
+/* MAIN CONTENT */
+.main{}
+.empty-state{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:400px;color:var(--muted);text-align:center;gap:12px}
+.empty-state .icon{font-size:48px;opacity:0.3}
+.empty-state p{font-size:15px}
+
+/* QUESTION CARD */
+.q-card{background:var(--surface);border:1px solid var(--border2);border-radius:16px;overflow:hidden;margin-bottom:16px;transition:border-color .2s}
+.q-card:hover{border-color:rgba(124,108,250,0.3)}
+.q-card-header{padding:18px 20px;cursor:pointer;display:flex;align-items:flex-start;gap:14px}
+.q-num{font-family:'Syne',sans-serif;font-size:12px;font-weight:700;color:var(--accent);opacity:0.6;min-width:28px;padding-top:2px}
+.q-content{flex:1}
+.q-tags{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px}
+.tag{display:inline-block;font-size:10px;font-weight:500;padding:2px 9px;border-radius:20px;letter-spacing:0.04em}
+.tag.stat{background:var(--tag-stat-bg);color:var(--tag-stat)}
+.tag.ml{background:var(--tag-ml-bg);color:var(--tag-ml)}
+.tag.sql{background:var(--tag-sql-bg);color:var(--tag-sql)}
+.tag.dl{background:var(--tag-dl-bg);color:var(--tag-dl)}
+.q-text{font-size:15px;font-weight:500;line-height:1.5;color:var(--text)}
+.q-company{font-size:11px;color:var(--muted);margin-top:6px}
+.q-toggle{width:28px;height:28px;border-radius:8px;border:1px solid var(--border2);display:flex;align-items:center;justify-content:center;flex-shrink:0;color:var(--muted);font-size:12px;transition:all .2s}
+.q-card.open .q-toggle{background:rgba(124,108,250,0.12);border-color:var(--accent);color:var(--accent2)}
+.q-answer{display:none;padding:0 20px 20px 62px}
+.q-card.open .q-answer{display:block}
+.answer-box{background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:18px 20px;font-size:14px;line-height:1.8;color:var(--text);border-left:3px solid var(--accent)}
+code{font-family:monospace;background:rgba(255,255,255,0.06);padding:1px 6px;border-radius:4px;font-size:13px;color:var(--teal)}
+
+/* RESULT COUNT */
+.result-info{font-size:13px;color:var(--muted);margin-bottom:16px;padding:0 4px}
+.result-info strong{color:var(--text)}
+
+/* PROGRESS */
+.progress-bar{height:2px;background:var(--border);border-radius:2px;margin-bottom:24px;overflow:hidden}
+.progress-fill{height:100%;background:linear-gradient(90deg,var(--accent),var(--teal));border-radius:2px;transition:width .4s ease}
+
+/* DETAIL VIEW */
+.detail-view{display:none}
+.detail-view.show{display:block}
+.list-view{display:block}
+.list-view.hide{display:none}
+</style>
+</head>
+<body>
+<div class="app">
+  <header>
+    <div class="header-left">
+      <div class="eyebrow">Interview Prep Guide</div>
+      <h1>Data Science<span>Company-Wise Q&A</span></h1>
+    </div>
+    <div class="header-stats">
+      <div class="stat-pill"><div class="num" id="totalQ">0</div><div class="lbl">Questions</div></div>
+      <div class="stat-pill"><div class="num">14</div><div class="lbl">Companies</div></div>
+      <div class="stat-pill"><div class="num" id="shownQ">0</div><div class="lbl">Showing</div></div>
+    </div>
+  </header>
+
+  <div class="controls">
+    <div class="search-wrap">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+      <input id="search" placeholder="Search any question or topic..." oninput="applyFilters()">
+    </div>
+    <div class="filter-row">
+      <span class="filter-label">Company</span>
+      <div id="chips"></div>
+    </div>
+    <div class="filter-row">
+      <span class="filter-label">Topic</span>
+      <div class="tag-filter" id="tagFilters">
+        <button class="tag-btn stat active" onclick="toggleTag('stat',this)">Statistics</button>
+        <button class="tag-btn ml active" onclick="toggleTag('ml',this)">Machine Learning</button>
+        <button class="tag-btn sql active" onclick="toggleTag('sql',this)">SQL / Python</button>
+        <button class="tag-btn dl active" onclick="toggleTag('dl',this)">Deep Learning</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="layout">
+    <div class="sidebar" id="sidebar"></div>
+    <div class="main">
+      <div class="progress-bar"><div class="progress-fill" id="progress" style="width:100%"></div></div>
+      <div class="result-info" id="resultInfo"></div>
+      <div id="cards"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+const data=[
+{company:"Infosys",role:"Data Scientist",qs:[
+{q:"What is the curse of dimensionality? How would you handle it?",a:"As we add more features (dimensions), data becomes sparse and models struggle to find patterns. Handle it by: using PCA to reduce dimensions, feature selection to keep only relevant features, and regularization techniques like L1/L2.",tags:["ml","stat"]},
+{q:"How to find multicollinearity in a dataset?",a:"Use <code>correlation matrix</code> — if two features have correlation > 0.8, multicollinearity exists. Also use <code>VIF (Variance Inflation Factor)</code> — a VIF > 5 or 10 signals multicollinearity.",tags:["stat","ml"]},
+{q:"Explain the different ways to treat multicollinearity.",a:"1) Remove one of the correlated features. 2) Use PCA to combine correlated features. 3) Apply Ridge regression which handles multicollinearity naturally. 4) Use domain knowledge to decide which feature to keep.",tags:["ml","stat"]},
+{q:"How do you decide which feature to keep after a multicollinearity test?",a:"Keep the feature that: has higher correlation with the target variable, is more interpretable, or has less missing data. Check which one drops VIF more when removed.",tags:["ml"]},
+{q:"Explain logistic regression.",a:"Logistic regression predicts the probability of a binary outcome (0 or 1). It applies the <code>sigmoid function</code> to a linear equation to squeeze output between 0 and 1. If probability > 0.5, predict class 1, else class 0.",tags:["ml"]},
+{q:"If sigmoid gives probability 0–1, why do we need log loss?",a:"Sigmoid gives probability, but log loss measures how wrong predictions are during training. Log loss heavily penalizes confident wrong predictions. MSE doesn't work well for probabilities — log loss is mathematically better suited for probability outputs.",tags:["ml","stat"]},
+{q:"What is P-Value and its significance in statistical testing?",a:"P-value is the probability of observing the result by chance, assuming null hypothesis is true. If <code>p < 0.05</code>, we reject the null hypothesis (statistically significant). Lower p-value = stronger evidence against null hypothesis.",tags:["stat"]},
+{q:"How do you split time series data and what evaluation matrix do you use?",a:"For time series, never shuffle data. Use <code>forward chaining</code>: train on first N months, test on next month. Use metrics like <code>MAE, RMSE, MAPE</code>. Random train-test split causes data leakage.",tags:["ml"]},
+{q:"How did you deploy your model? How often do you retrain it?",a:"Save model using <code>pickle/joblib</code>, wrap in Flask/FastAPI REST API, deploy on cloud (AWS, GCP). Retrain frequency depends on data drift — monthly or when model performance drops below threshold.",tags:["ml"]},
+]},
+{company:"Google",role:"Data Scientist",qs:[
+{q:"Why do you use feature selection?",a:"To remove irrelevant/redundant features, reduce overfitting, speed up training, and improve interpretability. Fewer but better features usually give better generalization.",tags:["ml"]},
+{q:"Effect on logistic regression coefficients if two predictors are highly correlated?",a:"Coefficients become unstable — can be very large or switch signs. This is the multicollinearity problem. Individually both features may seem insignificant but together they are important. Use <code>VIF</code> to detect and remove correlated features.",tags:["ml","stat"]},
+{q:"What are confidence intervals of the coefficients?",a:"A range within which the true coefficient value falls with a given probability (usually 95%). If interval contains 0, the feature may not be significant. Narrow intervals mean more precise estimates.",tags:["stat"]},
+{q:"Difference between Gaussian Mixture Model and K-Means?",a:"K-Means assigns each point to exactly one cluster (hard assignment), assumes spherical clusters. GMM is soft clustering — each point has a probability of belonging to each cluster, and clusters can be elliptical. GMM is more flexible but computationally heavier.",tags:["ml"]},
+{q:"How do you pick k in K-Means?",a:"Use the <code>Elbow Method</code> — plot WCSS vs k and pick the bend point. Also use <code>Silhouette Score</code> — higher is better. Domain knowledge also helps.",tags:["ml"]},
+{q:"How do you know when Gaussian Mixture Model is applicable?",a:"When data likely comes from multiple overlapping distributions, clusters are non-spherical, or you need soft/probabilistic cluster assignments. Also useful when K-Means gives poor results.",tags:["ml"]},
+{q:"Assuming clustering labels are known, how do you evaluate a clustering model?",a:"Use external metrics: <code>Adjusted Rand Index (ARI)</code>, <code>Normalized Mutual Information (NMI)</code>, and <code>Fowlkes-Mallows Score</code>. These compare predicted clusters with true labels — higher scores = better clustering.",tags:["ml","stat"]},
+]},
+{company:"Xoriant",role:"Data Scientist",qs:[
+{q:"List out data validation techniques.",a:"1) Range check (values within expected range). 2) Type check (correct data types). 3) Null/missing value check. 4) Duplicate check. 5) Consistency check across related fields. 6) Format check (e.g., date format). 7) Referential integrity in databases.",tags:["ml"]},
+{q:"Assumptions of Linear Regression Model.",a:"1) Linearity between X and Y. 2) No multicollinearity among features. 3) Homoscedasticity (constant variance in residuals). 4) Normality of residuals. 5) No autocorrelation in residuals (important for time series).",tags:["ml","stat"]},
+{q:"What is KNN imputation?",a:"Missing values are filled using the average (or mode) of the <code>K nearest neighbors</code> of that row. Better than simple mean imputation as it considers data structure. Works well for small to medium datasets.",tags:["ml"]},
+{q:"Why do we rotate components in PCA?",a:"Rotation (like Varimax) makes components more interpretable by making each component load highly on some variables and near-zero on others. It doesn't change explained variance — just makes the structure cleaner.",tags:["ml"]},
+{q:"What is the role of groupby() function?",a:"<code>groupby()</code> in Pandas groups data by one or more columns and allows aggregate operations like sum, mean, count on each group. Example: <code>sales.groupby('region')['revenue'].sum()</code>.",tags:["sql"]},
+{q:"Difference between Decision Tree and Random Forest.",a:"Decision Tree is a single tree that can overfit. Random Forest builds many trees (ensemble) on random subsets of data and features, then averages results. Random Forest is more accurate, less prone to overfitting but less interpretable.",tags:["ml"]},
+{q:".loc() vs .iloc()",a:"<code>.loc</code> uses label-based indexing (row/column names). <code>.iloc</code> uses integer position-based indexing (0, 1, 2...). Example: <code>df.loc['row_name','col_name']</code> vs <code>df.iloc[0, 1]</code>.",tags:["sql"]},
+{q:"How do you handle outliers and missing values?",a:"Outliers: remove using IQR method, cap using winsorization, or keep if genuine. Missing values: impute with mean/median/mode, use KNN imputation, or drop rows if very few. Choice depends on amount and nature of missing data.",tags:["ml"]},
+{q:"When to use mean vs median vs mode for imputation?",a:"<code>Mean</code>: when data is normally distributed (no outliers). <code>Median</code>: when data is skewed or has outliers — robust. <code>Mode</code>: for categorical data. Median is usually the safest choice for real-world data.",tags:["stat"]},
+{q:"DataFrame vs Series",a:"A <code>Series</code> is a 1D array with labels (like a single column). A <code>DataFrame</code> is a 2D table with rows and columns (like an Excel sheet). A DataFrame is a collection of Series objects.",tags:["sql"]},
+]},
+{company:"Wipro",role:"Data Scientist",qs:[
+{q:"Difference between WHERE and HAVING in SQL.",a:"<code>WHERE</code> filters rows before grouping. <code>HAVING</code> filters groups after GROUP BY. Example: <code>WHERE salary > 50000</code> filters individual rows. <code>HAVING COUNT(*) > 5</code> filters groups with more than 5 rows.",tags:["sql"]},
+{q:"Basics of Logistic Regression.",a:"Predicts probability of binary outcome. Uses <code>sigmoid function</code> to map output to [0,1]. Uses <code>log loss</code> as cost function. Optimized via gradient descent. Threshold (usually 0.5) converts probability to class label.",tags:["ml"]},
+{q:"How do you treat outliers?",a:"1) Z-score method: remove points more than 3 std deviations from mean. 2) IQR method: remove points below Q1-1.5×IQR or above Q3+1.5×IQR. 3) Winsorization (cap/floor). 4) Log transformation. 5) Use robust algorithms like tree-based models.",tags:["ml","stat"]},
+{q:"Explain confusion matrix.",a:"Table comparing actual vs predicted: <code>TP, TN, FP, FN</code>. From it: Accuracy = (TP+TN)/Total, Precision = TP/(TP+FP), Recall = TP/(TP+FN), F1 = 2×P×R/(P+R). Choose metric based on business cost of false positives vs negatives.",tags:["ml"]},
+{q:"Explain PCA.",a:"PCA reduces dimensionality by finding directions of maximum variance. Steps: standardize data → compute covariance matrix → find eigenvectors/eigenvalues → sort by eigenvalue → project data onto top k eigenvectors. Eigenvalues tell importance, eigenvectors tell direction.",tags:["ml","stat"]},
+{q:"How do you cut a cake into 8 equal parts with 3 straight cuts?",a:"2 cuts through the top forming a cross → 4 pieces. The 3rd cut is horizontal through the middle of the cake's height — this doubles the 4 pieces to <code>8 equal parts</code>.",tags:["stat"]},
+{q:"Explain K-Means clustering.",a:"Choose k centroids randomly → assign each point to nearest centroid → recalculate centroid as mean of points in cluster → repeat until convergence. Minimizes within-cluster variance. Sensitive to initial centroids and outliers.",tags:["ml"]},
+{q:"How is KNN different from K-Means?",a:"<code>KNN</code> = supervised classification/regression — classifies based on k nearest labeled points. <code>K-Means</code> = unsupervised clustering — groups unlabeled data into k clusters. K in KNN = neighbors, K in K-Means = clusters.",tags:["ml"]},
+{q:"Strategy to handle imbalanced datasets?",a:"1) Oversample minority using <code>SMOTE</code>. 2) Undersample majority. 3) Use <code>class_weight='balanced'</code> in sklearn. 4) Use F1/AUC-ROC instead of accuracy. 5) Ensemble methods like Balanced Random Forest.",tags:["ml"]},
+{q:"Bankruptcy prediction: classification or regression?",a:"<code>Classification</code>. The outcome is binary — declares bankruptcy or doesn't within 7 days. Regression would be used for a continuous value like stock price or probability score.",tags:["ml"]},
+]},
+{company:"TCS",role:"Data Scientist",qs:[
+{q:"Explain time series models. Which have you used?",a:"Time series models handle sequential time-dependent data. Common ones: <code>ARIMA</code> (autoregressive, moving average), <code>SARIMA</code> (seasonal), Exponential Smoothing, <code>Facebook Prophet</code> (business data), <code>LSTM</code> (complex patterns).",tags:["ml","dl"]},
+{q:"SQL: Group by top 2 salaries per department using ROW_NUMBER.",a:"<code>SELECT * FROM (SELECT *, ROW_NUMBER() OVER(PARTITION BY department ORDER BY salary DESC) as rn FROM employees) t WHERE rn <= 2;</code> — Assigns rank per department and filters top 2.",tags:["sql"]},
+{q:"Find mean of numeric columns and add to each row in Pandas.",a:"<code>numeric_cols = df.select_dtypes(include='number').columns</code><br><code>col_means = df[numeric_cols].mean()</code><br><code>df[numeric_cols] = df[numeric_cols] + col_means</code>",tags:["sql","ml"]},
+{q:"What is Gradient Descent? What is the learning rate?",a:"Gradient Descent minimizes cost function by moving in direction of steepest descent (negative gradient). Learning rate controls step size. Too high: overshoot. Too low: slow convergence. Stop when gradient approaches 0 (global minimum).",tags:["ml","dl"]},
+{q:"What are Log-Loss and ROC-AUC?",a:"<code>Log-Loss</code>: measures how well predicted probabilities match actual labels — lower is better. <code>ROC-AUC</code>: plots true positive rate vs false positive rate at all thresholds — 0.5 (random) to 1 (perfect). AUC-ROC works well for imbalanced datasets.",tags:["ml","stat"]},
+{q:"What is Multicollinearity? How to choose between two correlated features?",a:"When two features are highly correlated, making it hard to isolate individual effects. To choose: check which has higher correlation with target, use VIF (keep lower VIF), or combine using PCA. Domain knowledge often helps.",tags:["ml","stat"]},
+{q:"Explain VIF — Variance Inflation Factor.",a:"Measures how much variance of a coefficient is inflated due to multicollinearity. <code>VIF = 1</code>: no correlation. <code>VIF 1-5</code>: moderate. <code>VIF > 5 or 10</code>: high — consider removing that feature. VIF_j = 1/(1-R²_j).",tags:["ml","stat"]},
+]},
+{company:"Uber",role:"Data Scientist",qs:[
+{q:"How would you find an anomaly in a distribution?",a:"Statistical: <code>Z-score</code> (>3 std), IQR method. Visualize with box plots/histograms. ML methods: <code>Isolation Forest</code>, DBSCAN, Autoencoders. For time series: detect points deviating significantly from seasonal patterns.",tags:["ml","stat"]},
+{q:"How to investigate if a trend is due to an anomaly?",a:"Compare with historical data for same period. Check if anomaly correlates with external events (holidays, outages). Segment data by city/time/user type to isolate source. If trend persists across segments, it may be a real shift.",tags:["stat","ml"]},
+{q:"How would you estimate Uber's impact on traffic?",a:"Use <code>difference-in-differences</code> — compare traffic in cities before vs after Uber launch. Track metrics like average commute time, congestion index, accident rates. Control for confounders like population growth and transit changes.",tags:["stat"]},
+{q:"Metrics to track if Uber's paid advertising works?",a:"Track <code>CAC</code> (Customer Acquisition Cost), conversion rate from ad to first ride, <code>LTV</code> (lifetime value), retention at 30/60/90 days. If LTV > 3×CAC, advertising is profitable. A/B test ad vs no-ad groups.",tags:["stat","ml"]},
+]},
+{company:"Mindtree",role:"Data Scientist",qs:[
+{q:"What is central tendency?",a:"Measures representing the center of a distribution: <code>Mean</code> (average), <code>Median</code> (middle value), <code>Mode</code> (most frequent value). They summarize where most data points cluster.",tags:["stat"]},
+{q:"Which central tendency is used when outliers exist?",a:"<code>Median</code>. Not affected by extreme values unlike mean. Example: in income data with a few billionaires, median income is more representative than mean income.",tags:["stat"]},
+{q:"What is the Central Limit Theorem?",a:"States that distribution of sample means approaches <code>normal distribution</code> as sample size increases (n > 30), regardless of population's distribution. This is why we can use normal distribution in many statistical tests.",tags:["stat"]},
+{q:"What is a Chi-Square test?",a:"Tests if there's a significant association between two categorical variables. Example: Is gender related to product preference? If chi-square statistic > critical value (or <code>p < 0.05</code>), variables are related.",tags:["stat"]},
+{q:"What is the ANOVA test?",a:"Analysis of Variance tests if means of 3+ groups are significantly different. Example: testing if average sales differ across 3 regions. Low p-value means at least one group mean is different. Follow up with post-hoc tests.",tags:["stat"]},
+{q:"How to handle huge class imbalance in ML?",a:"1) <code>SMOTE</code> (synthetic oversampling). 2) Undersampling majority. 3) <code>class_weight='balanced'</code>. 4) Use F1/AUC-ROC instead of accuracy. 5) BalancedRandomForest. 6) Collect more minority class data if possible.",tags:["ml"]},
+{q:"Sigmoid formula and multi-class use.",a:"Sigmoid: <code>f(x) = 1/(1+e^(-x))</code>. For binary classification it works perfectly. For multi-class, use <code>Softmax</code> instead — outputs probabilities summing to 1. Sigmoid is used in binary or multi-label classification outputs.",tags:["ml","dl"]},
+{q:"What metric is used to split a node in a Decision Tree?",a:"For classification: <code>Gini Impurity</code> or <code>Information Gain (Entropy)</code>. Gini = 1-Σp². Entropy = -Σp×log(p). Split maximizing information gain or minimizing Gini is chosen. For regression: MSE or MAE reduction.",tags:["ml"]},
+{q:"What is Ensemble Learning?",a:"Combining multiple models for better predictions. Two types: <code>Bagging</code> (parallel, e.g., Random Forest) reduces variance. <code>Boosting</code> (sequential, e.g., XGBoost) reduces bias. <code>Stacking</code> uses model outputs as inputs to another model.",tags:["ml"]},
+]},
+{company:"Genpact",role:"Data Scientist",qs:[
+{q:"Why do we select validation data separate from test data?",a:"Validation data is used during training to tune hyperparameters — so it influences model development. Test data is the final unbiased evaluation the model has never seen. Without separation, test performance would be optimistically biased.",tags:["ml"]},
+{q:"Difference between Linear and Logistic Regression.",a:"<code>Linear regression</code>: predicts continuous values, uses MSE. <code>Logistic regression</code>: predicts probability for binary classification, uses sigmoid + log loss. Linear output is unbounded; logistic output is between 0 and 1.",tags:["ml","stat"]},
+{q:"Why do we use complex cost functions for logistic regression?",a:"MSE + sigmoid creates a non-convex function with many local minima — gradient descent gets stuck. <code>Log loss</code> creates a convex function with a single global minimum, making optimization reliable and guaranteed to converge.",tags:["ml"]},
+{q:"Which clustering technique uses combining of clusters?",a:"<code>Agglomerative Hierarchical Clustering</code> — bottom-up approach. Start with each point as its own cluster, merge two closest clusters repeatedly until one remains. Cut the dendrogram at desired level to get k clusters.",tags:["ml"]},
+{q:"Types of random variables?",a:"<code>Discrete</code>: takes countable values (e.g., number of customers) → PMF. <code>Continuous</code>: takes any value in a range (e.g., height, weight) → PDF. Key difference is whether values are countable or uncountably infinite.",tags:["stat"]},
+{q:"What is normality of residuals?",a:"An assumption in linear regression — errors/residuals should be normally distributed. Check using <code>Q-Q plot</code> (points should fall on a straight line), Shapiro-Wilk test, or histogram of residuals.",tags:["stat","ml"]},
+]},
+{company:"Ford",role:"Data Scientist",qs:[
+{q:"Why is CNN suitable for image classification and not RNN?",a:"CNN captures local spatial patterns using filters — edges, textures, shapes — with translation invariance. RNN is for sequential data. Images don't have time-step relationships; spatial relationships matter more, which CNNs handle natively.",tags:["dl"]},
+{q:"What is transfer learning?",a:"Using a pre-trained model (e.g., trained on ImageNet) fine-tuned for your specific task. Steps: load pre-trained model → freeze early layers → replace final layer → train on your smaller dataset. Saves time and data requirements.",tags:["dl","ml"]},
+{q:"Types of activation functions and when to use them.",a:"<code>ReLU</code>: default for hidden layers. <code>Sigmoid</code>: binary output (0-1). <code>Softmax</code>: multi-class output. <code>Tanh</code>: output between -1 and 1. <code>Leaky ReLU</code>: when ReLU causes dying neurons problem.",tags:["dl"]},
+{q:"Conditions for time series to be stationary.",a:"1) Constant mean over time. 2) Constant variance over time. 3) Constant autocorrelation structure. Test with <code>ADF test</code> — if p < 0.05, series is stationary. Fix with differencing or log transformation.",tags:["ml","stat"]},
+{q:"Difference between Batch and Stochastic Gradient Descent.",a:"<code>Batch GD</code>: uses entire dataset per update — accurate but slow. <code>SGD</code>: uses one sample per update — fast but noisy. <code>Mini-batch GD</code>: uses small batch (e.g., 32 samples) — best of both, standard in deep learning.",tags:["ml","dl"]},
+{q:"Explain epoch and batch in machine learning.",a:"<code>Epoch</code>: one complete pass through entire training dataset. <code>Batch</code>: subset processed in one forward/backward pass. <code>Iteration</code>: number of batches per epoch. Example: 1000 samples, batch 100 → 10 iterations/epoch.",tags:["ml","dl"]},
+{q:"Types of biases during sampling?",a:"1) Selection bias. 2) Survivorship bias. 3) Confirmation bias. 4) Response bias. Control by using random sampling and stratification. Always document sampling methodology to identify potential bias sources.",tags:["stat"]},
+]},
+{company:"Quantiphi",role:"ML Engineer",qs:[
+{q:"What happens when neural nets are too small vs large?",a:"Too small: <code>underfitting</code> — insufficient capacity for complex patterns, high training and test error. Too large: risks <code>overfitting</code> — low training error, high test error. Use dropout, regularization, and early stopping for large networks.",tags:["dl"]},
+{q:"Why do we need a pooling layer in CNN?",a:"Pooling reduces spatial dimensions (downsampling) — reduces computation, reduces overfitting, makes features location-invariant. <code>Max pooling</code> takes maximum value in each window (most common). <code>Average pooling</code> takes average.",tags:["dl"]},
+{q:"Are ensemble models better than individual models?",a:"Usually yes. They reduce variance (bagging) or bias (boosting) and are more robust. However, less interpretable, slower, and may be overkill for simple problems. A single well-tuned model can sometimes match a poorly designed ensemble.",tags:["ml"]},
+{q:"How is Random Forest different from Gradient Boosting?",a:"<code>Random Forest</code>: trees built in parallel on random data/feature subsets — reduces variance. <code>Gradient Boosting</code>: trees built sequentially, each correcting previous errors — reduces bias. GBM usually more accurate but slower and prone to overfitting.",tags:["ml"]},
+{q:"How to perform A/B testing for page design?",a:"Randomly split users into control (A) and treatment (B). Run for enough time to reach statistical significance. Measure conversion rates. Use <code>chi-square test or Z-test</code> (p < 0.05). Deploy the winner.",tags:["stat"]},
+{q:"Steps to create a neural network.",a:"1) Define architecture. 2) Initialize weights. 3) Forward pass. 4) Calculate loss. 5) Backward pass (gradients). 6) Update weights via optimizer. 7) Repeat for epochs. 8) Evaluate on validation set. 9) Tune hyperparameters.",tags:["dl"]},
+{q:"How to perform sentiment analysis?",a:"1) Collect labeled text. 2) Preprocess: tokenize, remove stopwords, lemmatize. 3) Vectorize: TF-IDF or <code>BERT embeddings</code>. 4) Train classifier (Logistic Regression, SVM, or LSTM). 5) Evaluate using F1 and accuracy.",tags:["dl","ml"]},
+]},
+{company:"Capital One",role:"Data Scientist",qs:[
+{q:"How would you build a model to predict credit card fraud?",a:"1) Handle class imbalance using SMOTE or class weights. 2) Feature engineer: transaction amount, time since last transaction, location mismatch. 3) Use <code>XGBoost or Random Forest</code>. 4) Evaluate with AUC-ROC and Precision-Recall curve. 5) Set threshold based on business cost.",tags:["ml"]},
+{q:"How do you handle missing or bad data?",a:"Missing: impute with mean/median/mode, <code>KNN imputation</code>, or model-based imputation. Bad data: identify with domain rules, then correct or remove. Document all cleaning decisions. Understand WHY data is missing — don't just drop rows.",tags:["ml"]},
+{q:"How do you derive new features from existing ones?",a:"Mathematical: ratios, logs, squares. Datetime: extract day/month/hour/day-of-week. Text: length, word count, sentiment. Aggregation: per-customer average spend. Interaction terms: feature_A × feature_B. Domain-specific: credit utilization = balance/limit.",tags:["ml"]},
+{q:"Predicting gender with only 100 data points — what problems arise?",a:"1) Overfitting. 2) Class imbalance. 3) High variance — small data changes cause very different models. 4) Poor generalization. Solution: use simple models, cross-validation, regularization, and consider whether 100 points is sufficient for this task.",tags:["ml","stat"]},
+{q:"Why does SVM maximize the margin between support vectors?",a:"Larger margin = better generalization. Points far from decision boundary are classified with more confidence. Small margin = slight noise could misclassify points. Maximizing margin minimizes the upper bound on generalization error.",tags:["ml"]},
+{q:"Explain overfitting and how to prevent it.",a:"Overfitting: performs well on training, poorly on test — memorizes noise. Prevention: <code>regularization (L1/L2)</code>, <code>dropout</code> (neural nets), cross-validation, more training data, simpler model, early stopping, pruning (trees).",tags:["ml"]},
+]},
+{company:"Latent View",role:"Data Scientist",qs:[
+{q:"Difference between normal and Gaussian distribution.",a:"They are the <code>same thing</code>. 'Normal distribution' is the common name; 'Gaussian distribution' is the mathematical name honoring Carl Friedrich Gauss. Both refer to the symmetric bell-curve distribution.",tags:["stat"]},
+{q:"What is null hypothesis?",a:"The null hypothesis (H0) assumes no effect, no difference, or no relationship. Example: H0 = 'New drug has no effect.' We try to disprove it. If <code>p < 0.05</code>, reject H0 and accept alternate hypothesis H1.",tags:["stat"]},
+{q:"What is stratified sampling?",a:"Dividing population into subgroups (strata) by characteristic (gender, region) and sampling proportionally from each group. Ensures all subgroups are represented — important for imbalanced datasets and reliable statistics.",tags:["stat","ml"]},
+{q:"Difference between Standard Scaler and MinMax Scaler.",a:"<code>StandardScaler</code>: transforms to mean=0, std=1. Good for SVM, PCA. <code>MinMaxScaler</code>: scales to [0,1] range. Good for neural networks. StandardScaler is more robust to outliers than MinMaxScaler.",tags:["ml"]},
+]},
+{company:"Verizon",role:"Data Scientist",qs:[
+{q:"What is OLS vs MLE?",a:"<code>OLS</code> (Ordinary Least Squares): minimizes sum of squared residuals — closed form, fast. Used in linear regression. <code>MLE</code> (Maximum Likelihood Estimation): finds parameters maximizing probability of observing the data. More general, used in logistic regression.",tags:["ml","stat"]},
+{q:"R² vs Adjusted R²?",a:"<code>R²</code>: proportion of variance explained — always increases when adding features even if useless. <code>Adjusted R²</code>: penalizes for unnecessary features. During model development, always use Adjusted R² to compare models with different feature counts.",tags:["ml","stat"]},
+{q:"Bias-Variance trade-off?",a:"<code>Bias</code>: error from wrong assumptions (underfitting). <code>Variance</code>: error from sensitivity to training data (overfitting). Simple models: high bias, low variance. Complex models: low bias, high variance. Find sweet spot using cross-validation.",tags:["ml"]},
+{q:"Overfitting vs Underfitting.",a:"<code>Underfitting</code>: too simple, high train AND test error → use more complex model. <code>Overfitting</code>: too complex, low train error, high test error → use regularization, more data.",tags:["ml"]},
+{q:"Forecasting vs Prediction? Regression vs Time Series?",a:"Prediction is general (any ML). Forecasting specifically predicts future time-ordered values. Regression assumes independent observations. Time series models (<code>ARIMA, Prophet</code>) explicitly model temporal dependencies, seasonality, and trends.",tags:["ml"]},
+]},
+{company:"Fractal",role:"Data Scientist",qs:[
+{q:"Difference between array and list.",a:"<code>List</code>: Python built-in, mixed types, slower. <code>Array (NumPy)</code>: single data type, vectorized operations, much faster for numerical computation. For data science, always use NumPy arrays or Pandas DataFrames.",tags:["ml"]},
+{q:"What is the map() function?",a:"Applies a function to every element of an iterable. Example: <code>list(map(lambda x: x*2, [1,2,3]))</code> → [2,4,6]. In Pandas: <code>df['col'].map(function)</code> applies element-wise.",tags:["sql"]},
+{q:"Which is faster for lookup: list or dict?",a:"<code>Dictionary (dict)</code>. List lookup is O(n) — checks each element. Dictionary lookup is O(1) — uses hash table. For large datasets, always prefer dict for key-based lookups.",tags:["sql"]},
+{q:"Kernels in SVM and their differences.",a:"<code>Linear</code>: linearly separable data, fastest. <code>RBF</code>: most popular, maps to infinite dimensions, works for non-linear data. <code>Polynomial</code>: polynomial decision boundaries. <code>Sigmoid</code>: similar to neural networks. Start with RBF as default.",tags:["ml"]},
+]},
+];
+
+let activeTags=new Set(["stat","ml","sql","dl"]);
+let activeCompany="All";
+let allCards=[];
+
+function buildAllCards(){
+  allCards=[];
+  data.forEach(d=>{
+    d.qs.forEach((q,i)=>{
+      allCards.push({...q,company:d.company,role:d.role,idx:i});
+    });
+  });
+  document.getElementById("totalQ").textContent=allCards.length;
+}
+
+function renderChips(){
+  const el=document.getElementById("chips");
+  const names=["All",...data.map(d=>d.company)];
+  el.innerHTML=names.map(n=>`<button class="chip${n===activeCompany?" active":""}" onclick="setCompany('${n}')">${n}</button>`).join("");
+}
+
+function setCompany(name){
+  activeCompany=name;
+  renderChips();
+  applyFilters();
+}
+
+function toggleTag(tag,btn){
+  if(activeTags.has(tag)){
+    if(activeTags.size===1) return;
+    activeTags.delete(tag);
+    btn.classList.add("inactive");
+  } else {
+    activeTags.add(tag);
+    btn.classList.remove("inactive");
+  }
+  applyFilters();
+}
+
+function applyFilters(){
+  const q=document.getElementById("search").value.toLowerCase().trim();
+  const filtered=allCards.filter(c=>{
+    if(activeCompany!=="All" && c.company!==activeCompany) return false;
+    if(!c.tags.some(t=>activeTags.has(t))) return false;
+    if(q && !c.q.toLowerCase().includes(q) && !c.a.toLowerCase().replace(/<[^>]+>/g,"").includes(q)) return false;
+    return true;
+  });
+  renderCards(filtered);
+  renderSidebar(filtered);
+  document.getElementById("shownQ").textContent=filtered.length;
+  const pct=allCards.length?Math.round(filtered.length/allCards.length*100):0;
+  document.getElementById("progress").style.width=pct+"%";
+  document.getElementById("resultInfo").innerHTML=`Showing <strong>${filtered.length}</strong> of <strong>${allCards.length}</strong> questions`;
+}
+
+function renderCards(filtered){
+  const el=document.getElementById("cards");
+  if(!filtered.length){
+    el.innerHTML=`<div class="empty-state"><div class="icon">🔍</div><p>No questions match your filters.</p></div>`;
+    return;
+  }
+  el.innerHTML=filtered.map((c,i)=>{
+    const tags=c.tags.map(t=>`<span class="tag ${t}">${t==="stat"?"Statistics":t==="ml"?"Machine Learning":t==="sql"?"SQL / Python":"Deep Learning"}</span>`).join("");
+    return `<div class="q-card" id="card-${i}">
+      <div class="q-card-header" onclick="toggleCard(${i})">
+        <div class="q-num">${String(i+1).padStart(2,"0")}</div>
+        <div class="q-content">
+          <div class="q-tags">${tags}</div>
+          <div class="q-text">${c.q}</div>
+          <div class="q-company">${c.company} &middot; ${c.role}</div>
+        </div>
+        <div class="q-toggle" id="tog-${i}">▾</div>
+      </div>
+      <div class="q-answer"><div class="answer-box">${c.a}</div></div>
+    </div>`;
+  }).join("");
+}
+
+function toggleCard(i){
+  const card=document.getElementById("card-"+i);
+  const tog=document.getElementById("tog-"+i);
+  const isOpen=card.classList.contains("open");
+  card.classList.toggle("open",!isOpen);
+  tog.textContent=isOpen?"▾":"▴";
+}
+
+function renderSidebar(filtered){
+  const byCompany={};
+  filtered.forEach(c=>{
+    if(!byCompany[c.company]) byCompany[c.company]=[];
+    byCompany[c.company].push(c);
+  });
+  const el=document.getElementById("sidebar");
+  if(!Object.keys(byCompany).length){el.innerHTML="";return;}
+  el.innerHTML=Object.entries(byCompany).map(([company,qs])=>`
+    <div class="company-group">
+      <div class="company-header" onclick="toggleSidebarGroup('sg-${company.replace(/\s/g,'')}')">
+        <span class="company-name">${company}</span>
+        <span class="company-count">${qs.length}</span>
+      </div>
+      <div class="company-qs open" id="sg-${company.replace(/\s/g,'')}">
+        ${qs.map((q,i)=>`<div class="q-item" onclick="scrollToQ('${q.q.slice(0,30)}')">${q.q.length>55?q.q.slice(0,55)+"…":q.q}</div>`).join("")}
+      </div>
+    </div>`).join("");
+}
+
+function toggleSidebarGroup(id){
+  const el=document.getElementById(id);
+  el.classList.toggle("open");
+}
+
+function scrollToQ(text){
+  const cards=document.querySelectorAll(".q-text");
+  for(let c of cards){
+    if(c.textContent.includes(text)){
+      c.closest(".q-card").scrollIntoView({behavior:"smooth",block:"center"});
+      return;
+    }
+  }
+}
+
+buildAllCards();
+renderChips();
+applyFilters();
+</script>
+</body>
+</html>
